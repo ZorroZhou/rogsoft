@@ -587,7 +587,7 @@ function boost_now(action){
 					maxWidth: '600px'
 				}, function(index) {
 					layer.close(index);
-					location.href = "http://" + pay_server + ":" + pay_port + "/pay_test.php?paytype=3&uuid=" + wb_key + "&mcode=" + dbus["wifiboost_mcode"].replace(/\+/g, "-") + "&router=" + net_address;
+					location.href = "http://" + pay_server + ":" + pay_port + "/pay.php?paytype=3&uuid=" + wb_key + "&mcode=" + dbus["wifiboost_mcode"].replace(/\+/g, "-") + "&router=" + net_address;
 					return true;
 				});
 			});
@@ -810,10 +810,10 @@ function open_buy() {
 			content: note,
 			btn: ['微信支付', '支付宝', '人工邮件购买'],
 			btn1: function() {
-				location.href = "http://" + pay_server + ":" + pay_port + "/pay_test.php?paytype=1&mcode=" + dbus["wifiboost_mcode"].replace(/\+/g, "-") + "&router=" + net_address;
+				location.href = "http://" + pay_server + ":" + pay_port + "/pay.php?paytype=1&mcode=" + dbus["wifiboost_mcode"].replace(/\+/g, "-") + "&router=" + net_address;
 			},
 			btn2: function() {
-				location.href = "http://" + pay_server + ":" + pay_port + "/pay_test.php?paytype=2&mcode=" + dbus["wifiboost_mcode"].replace(/\+/g, "-") + "&router=" + net_address;
+				location.href = "http://" + pay_server + ":" + pay_port + "/pay.php?paytype=2&mcode=" + dbus["wifiboost_mcode"].replace(/\+/g, "-") + "&router=" + net_address;
 			},
 			btn3: function() {
 				$("#qrcode_show").css("margin-top", "-50px");
