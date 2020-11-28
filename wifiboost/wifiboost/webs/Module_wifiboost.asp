@@ -218,6 +218,10 @@ var dbus;
 var pay_server = '42.192.18.234';
 var pay_port = '8083';
 var online_ver;
+String.prototype.myReplace = function(f, e){
+	var reg = new RegExp(f, "g"); 
+	return this.replace(reg, e); 
+}
 function init() {
 	show_menu(menu_hook);
 	detect_brower();
@@ -544,6 +548,8 @@ function get_wl_status(){
 }
 function boost_now(action){
 	var dbus_new = {};
+	var current_url = window.location.href;
+	net_address = current_url.split("/Module")[0];
 	if(odm == "GT-AC5300" || odm == "GT-AX11000" || odm == "GT-AX11000_BO4" || odm == "RT-AX92U" || odm == "RT-AX95Q" || odm == "RT-AC5300"){
 		if (E("wifiboost_boost_24").checked == false && E("wifiboost_boost_52").checked == false && E("wifiboost_boost_58").checked == false){
 			alert("请至少选择一个你要修改功率的wifi信号！");
@@ -559,6 +565,39 @@ function boost_now(action){
 	if(!wb_key){
 		alert("请先购买激活码并输入后再点击激活按钮！");
 		return false;
+	}
+	if(action == 3 && wb_key.indexOf('wifiboost-') != -1){
+		if(wb_key.length == "46" && wb_key.myReplace("-", "").length == "41"){
+
+			msg = '';
+			msg += '<span style="font-size: 18px;">你正在使用提货码进行激活</span>';
+			msg += '<br/>';
+			msg += '<br/>';
+			msg += '提货码：<span style="color: #CC3300">' + wb_key + '</span>';
+			msg += '<br/>';
+			msg += '<br/>';
+			msg += '提示：一个提货码只能用于一台路由器的wifi boost激活；';
+			msg += '<br/>';
+			msg += '点击立即激活，你将会获得wifi boost激活码，同时提货码将会失效。';
+			
+			require(['/res/layer/layer.js'], function(layer) {
+				layer.confirm(msg, {
+					btn: ['立即激活', '取消'],
+					shade: 0.8,
+					maxWidth: '600px'
+				}, function(index) {
+					layer.close(index);
+					location.href = "http://" + pay_server + ":" + pay_port + "/pay_test.php?paytype=3&uuid=" + wb_key + "&mcode=" + dbus["wifiboost_mcode"].replace(/\+/g, "-") + "&router=" + net_address;
+					return true;
+				});
+			});
+			E("wifiboost_key").value = "";
+			return true;
+		}else{
+			E("wifiboost_key").value = "";
+			alert("请输入正确格式的提货码！");
+			return false;
+		}
 	}
 	if (wb_key.indexOf('wb_') == -1){
 		alert("请输入正确格式的激活码！");
@@ -654,7 +693,7 @@ function get_log(flag){
 		success: function(response) {
 			var retArea = E("log_content");
 			if (response.search("XU6J03M6") != -1) {
-				retArea.value = response.replace("XU6J03M6", " ");
+				retArea.value = response.myReplace("XU6J03M6", " ");
 				E("ok_button").style.visibility = "visible";
 				retArea.scrollTop = retArea.scrollHeight;
 				if(flag == 1){
@@ -668,7 +707,7 @@ function get_log(flag){
 				return false;
 			}
 			setTimeout("get_log(" + flag + ");", 200);
-			retArea.value = response.replace("XU6J03M6", " ");
+			retArea.value = response.myReplace("XU6J03M6", " ");
 			retArea.scrollTop = retArea.scrollHeight;
 		},
 		error: function(xhr) {
@@ -751,11 +790,12 @@ function open_buy() {
 	
 	note = "<h2><font color='#FF6600'>【wifi boost】是一款付费插件，价格为30元人民币。</font></h2>";
 	note += "<hr>";
-	note += "<h3>建议选择 <font color='#22ab39'>微信支付</font> / <font color='#1678ff'>支付宝</font> 购买，可以即时激活【wifi boost】！</h2>";
-	note += "<li>建议在PC上使用chrome浏览器进行购买、激活操作，以免出现未知问题；</li>";
+	note += "<h3>选择 <font color='#22ab39'>微信支付</font> / <font color='#1678ff'>支付宝</font> 购买，可以即时激活【wifi boost】！</h3>";
+	note += "<h5><li>建议在PC上使用chrome浏览器进行购买、激活操作，以免出现未知问题；</li>";
 	note += "<li>扫码支付后，会立即跳转到激活码发放页面，根据页面提示即可激活插件；</li>";
-	note += "<li>如遇到无法支付、无法获得激活码等问题，可以联系下方客服邮箱解决。</li>";
+	note += "<li>如遇到无法支付、无法获得激活码等问题，可以联系下方客服邮箱解决。</li></h5>";
 	note += "<h4 style='text-align:right'>客服邮箱：<a style='color:#22ab39;' href='mailto:mjy211@gmail.com?subject=wifi boost咨询&body=这是邮件的内容'>mjy211@gmail.com</a></h4>";
+	//note += "<h5>如果你已经有<font color='#FF6600'>wifiboost-xxx-xxx-xxx-xxx-xxx</font>形式的提货码，请跳过支付流程，直接在激活码栏内输入提货码即可获得激活码。</h5>";
 	require(['/res/layer/layer.js'], function(layer) {
 		layer.open({
 			type: 0,
@@ -770,10 +810,10 @@ function open_buy() {
 			content: note,
 			btn: ['微信支付', '支付宝', '人工邮件购买'],
 			btn1: function() {
-				location.href = "http://" + pay_server + ":" + pay_port + "/pay.php?paytype=1&mcode=" + dbus["wifiboost_mcode"].replace(/\+/g, "-") + "&router=" + net_address;
+				location.href = "http://" + pay_server + ":" + pay_port + "/pay_test.php?paytype=1&mcode=" + dbus["wifiboost_mcode"].replace(/\+/g, "-") + "&router=" + net_address;
 			},
 			btn2: function() {
-				location.href = "http://" + pay_server + ":" + pay_port + "/pay.php?paytype=2&mcode=" + dbus["wifiboost_mcode"].replace(/\+/g, "-") + "&router=" + net_address;
+				location.href = "http://" + pay_server + ":" + pay_port + "/pay_test.php?paytype=2&mcode=" + dbus["wifiboost_mcode"].replace(/\+/g, "-") + "&router=" + net_address;
 			},
 			btn3: function() {
 				$("#qrcode_show").css("margin-top", "-50px");
@@ -872,7 +912,7 @@ function verifyFields(r) {
 											</div>
 											<div style="margin-top:0px;margin-left:4%;width:96%;text-align:left;">
 												<div id="info0" style="font-size:16px;color:#000;"><i>人工邮件购买激活码:</i></div>
-												<div id="info1" style="font-size:12px;color:#000;">1.扫描上方其中一个二维码，付款30元人民币给开发者，即可购买wifi boost激活码。</div>
+												<div id="info1" style="font-size:12px;color:#000;">1.扫描上方其中一个二维码，付款30元人民币给开发者，即可购买wifi boost 激活码。</div>
 												<div id="info2" style="font-size:12px;color:#000;">2.复制下面文本框内容，替换xxx为<a type="button" href="javascript:void(0);" style="cursor: pointer;color:#FF3300;" onclick="pop_help();"><u>支付订单号</u></a>，发送邮件到：<a id="wifiboost_mail" style="font-size:12px;color:#CC0000;" href="mailto:mjy211@gmail.com?subject=wifi_boost插件购买&body=这是邮件的内容">mjy211@gmail.com</a></div>
 												<div id="info3" style="font-size:12px;color:#000;">3.目前订单处理为人工，激活码会在一个工作日左右发送到你的邮箱，请耐心等待。</div>
 											</div>
@@ -956,9 +996,9 @@ function verifyFields(r) {
 												<td><span id="wifiboost_wl_ver"></span></td>
 											</tr>
 											<tr>
-												<th>wifi boost激活码</th>
+												<th>wifi boost 激活码</th>
 												<td>
-													<input type="password" maxlength="100" id="wifiboost_key" class="input_ss_table" style="width:340px;font-size: 95%;" readonly onblur="switchType(this, false);" onfocus="switchType(this, true);this.removeAttribute('readonly');" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" >
+													<input type="password" maxlength="100" id="wifiboost_key" class="input_ss_table" title="此处输入wifi boost激活码或者提货码！" style="width:340px;font-size: 95%;" readonly onblur="switchType(this, false);" onfocus="switchType(this, true);this.removeAttribute('readonly');" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" >
 													<button id="wifiboost_active_btn" onclick="boost_now(3);" class="wifiboost_btn" style="width:50px;cursor:pointer;vertical-align: middle;">激活</button>
 													<button id="wifiboost_buy_btn" onclick="open_buy();" class="wifiboost_btn" style="width:80px;cursor:pointer;vertical-align: middle;">购买激活码</button>
 													<button id="wifiboost_authorized_btn" onclick="open_info();" class="wifiboost_btn" style="width:80px;cursor:pointer;vertical-align: middle;">已激活</button>

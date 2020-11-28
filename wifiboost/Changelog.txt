@@ -1,5 +1,8 @@
 Koolshare Asuswrt-Merlin wifiboost Changelog for HND/AXHND platform
 ===========================================
+3.4
+   - update	新增提货码激活方式，在激活码栏输入提货码即可激活插件，提货码为wifiboost-xxx-xxx...格式。
+
 3.3
    - update	优化支付。
    - update	优化插件安装后，如果出现错误的提示。
