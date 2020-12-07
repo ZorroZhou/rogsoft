@@ -1,5 +1,8 @@
 Koolshare Asuswrt-Merlin cfetool Changelog for HND/AXHND platform
 ===========================================
+2.4 - 2.5
+   - add	修复修改国行后，还原原始CFE无法使用的问题；
+
 2.3
    - add	优化支付；
 
